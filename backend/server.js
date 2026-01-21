@@ -3,12 +3,29 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const PORT = 3000;
 const DATA_FILE = './data/offres.json';
 
-app.use(cors());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+// Servir le build React
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
+
+// ⚡ CORS – autoriser ton front
+app.use(cors({
+  origin: 'https://job-tracker-ouli.onrender.com'
+}));
 app.use(bodyParser.json());
 
 // Crée un nouvel utilisateur et renvoie un userId
