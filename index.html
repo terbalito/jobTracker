@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JobTracker Pro | Gestionnaire d'Opportunités</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 </head>
 <body>
     <div class="app-container">
@@ -55,10 +58,17 @@
 
             <!-- Filtres -->
             <nav class="filters">
-                <button class="filter-btn active" data-filter="all">Toutes</button>
-                <button class="filter-btn" data-filter="urgent">⚠️ Urgentes</button>
-                <button class="filter-btn" data-filter="postulated">✅ Postulées</button>
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i> Toutes
+                </button>
+                <button class="filter-btn" data-filter="urgent">
+                    <i class="fas fa-bolt"></i> Urgentes
+                </button>
+                <button class="filter-btn" data-filter="postulated">
+                    <i class="fas fa-check-circle"></i> Postulées
+                </button>
             </nav>
+
 
             <!-- Liste des offres -->
             <div id="offers-list" class="offers-grid">

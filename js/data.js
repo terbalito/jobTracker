@@ -80,7 +80,6 @@ export const DataManager = {
         }
     },
 
-    // Pour la gestion des notifications locales
     loadNotifiedIds() {
         const stored = localStorage.getItem('jobtracker_notified');
         return new Set(stored ? JSON.parse(stored) : []);

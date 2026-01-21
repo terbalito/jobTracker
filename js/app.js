@@ -1,3 +1,4 @@
+// app.js
 import { DataManager } from './data.js';
 
 class JobTrackerApp {
@@ -29,6 +30,7 @@ class JobTrackerApp {
     async loadOffers() {
         try {
             this.offers = await DataManager.loadOffers();
+            console.log("OFFRES CHARGEES :", this.offers);
         } catch (err) {
             console.error("Erreur lors du chargement des offres :", err);
             this.offers = [];
@@ -57,7 +59,7 @@ class JobTrackerApp {
                 document.querySelector('.filter-btn.active').classList.remove('active');
                 e.target.classList.add('active');
                 this.currentFilter = e.target.dataset.filter;
-                await this.loadOffers(); // reload depuis le serveur
+                await this.loadOffers();
                 this.render();
             });
         });
@@ -115,15 +117,25 @@ class JobTrackerApp {
     isUrgent(dateStr) {
         const deadline = new Date(dateStr);
         const today = new Date();
+        today.setHours(0,0,0,0);
+        deadline.setHours(0,0,0,0);
         const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
         return diffDays >= 0 && diffDays <= 2;
+    }
+
+    isFutureOrToday(dateStr) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const d = new Date(dateStr);
+        d.setHours(0,0,0,0);
+        return d >= today;
     }
 
     render() {
         let filtered = [...this.offers];
 
         // Supprimer les offres expirées
-        filtered = filtered.filter(o => new Date(o.date_limite) >= new Date());
+        filtered = filtered.filter(o => this.isFutureOrToday(o.date_limite));
 
         // Sort: Urgent first, puis date ajout
         filtered.sort((a, b) => {
@@ -171,11 +183,15 @@ class JobTrackerApp {
                 <div class="offer-footer">
                     <span class="offer-deadline">Limite : ${offer.date_limite}</span>
                     <div class="action-btns">
-                        <a href="${offer.lien}" target="_blank" class="btn-icon" title="Voir l'offre">🔗</a>
+                        <a href="${offer.lien}" target="_blank" class="btn-icon" title="Voir l'offre">
+                            <i class="fas fa-link"></i>
+                        </a>
                         <button class="btn-icon toggle-status" title="Changer statut">
-                            ${offer.statut === 'postulé' ? '⏳' : '✅'}
+                            <i class="${offer.statut === 'postulé' ? 'fas fa-hourglass-half' : 'fas fa-check'}"></i>
                         </button>
-                        <button class="btn-icon delete-btn" title="Supprimer">🗑️</button>
+                        <button class="btn-icon delete-btn" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>
             </article>
@@ -208,13 +224,13 @@ class JobTrackerApp {
         });
 
         // Cliquer sur la carte ouvre le lien
-        this.listContainer.querySelectorAll('.offer-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const id = card.dataset.id;
-                const offer = this.offers.find(o => o.id === id);
-                if (offer && offer.lien) window.open(offer.lien, '_blank');
-            });
-        });
+        // this.listContainer.querySelectorAll('.offer-card').forEach(card => {
+        //     card.addEventListener('click', () => {
+        //         const id = card.dataset.id;
+        //         const offer = this.offers.find(o => o.id === id);
+        //         if (offer && offer.lien) window.open(offer.lien, '_blank');
+        //     });
+        // });
     }
 
     updateStats() {
@@ -247,3 +263,4 @@ class JobTrackerApp {
 
 // Lancement
 new JobTrackerApp();
+            
