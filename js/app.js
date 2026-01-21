@@ -171,7 +171,7 @@ class JobTrackerApp {
         const urgentClass = urgent ? 'urgent-card' : '';
 
         return `
-            <article class="offer-card ${urgentClass}" data-id="${offer.id}" title="Cliquez pour ouvrir l'offre">
+            <article class="offer-card ${urgentClass}" data-id="${offer.id}">
                 <div class="offer-header">
                     <div>
                         <div class="offer-title">${offer.titre} ${urgent ? '⚠️' : ''}</div>
@@ -179,7 +179,9 @@ class JobTrackerApp {
                     </div>
                     <span class="offer-status-badge ${statusClass}">${offer.statut}</span>
                 </div>
-                <p class="offer-company" style="color: var(--text-beige); opacity: 0.8">${offer.description || 'Pas de description.'}</p>
+                <p class="offer-company" style="color: var(--text-beige); opacity: 0.8">
+                    ${offer.description || 'Pas de description.'}
+                </p>
                 <div class="offer-footer">
                     <span class="offer-deadline">Limite : ${offer.date_limite}</span>
                     <div class="action-btns">
@@ -222,15 +224,6 @@ class JobTrackerApp {
                 }
             });
         });
-
-        // Cliquer sur la carte ouvre le lien
-        // this.listContainer.querySelectorAll('.offer-card').forEach(card => {
-        //     card.addEventListener('click', () => {
-        //         const id = card.dataset.id;
-        //         const offer = this.offers.find(o => o.id === id);
-        //         if (offer && offer.lien) window.open(offer.lien, '_blank');
-        //     });
-        // });
     }
 
     updateStats() {
@@ -263,4 +256,3 @@ class JobTrackerApp {
 
 // Lancement
 new JobTrackerApp();
-            

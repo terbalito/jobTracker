@@ -1,91 +1,114 @@
-// data.js
-let userId = localStorage.getItem('userId');
+// ===============================
+// 🔑 Gestion utilisateur (ID + lien magique)
+// ===============================
 
-async function getUserId() {
-    if (!userId) {
-        try {
-            const res = await fetch('http://localhost:3000/create-user', { method: 'POST' });
-            const data = await res.json();
-            userId = data.userId;
-            localStorage.setItem('userId', userId);
-        } catch (e) {
-            console.error("Erreur lors de la création de l'utilisateur :", e);
-        }
-    }
-    return userId;
+// Récupération du token depuis l'URL (?token=...)
+const params = new URLSearchParams(window.location.search);
+const tokenFromUrl = params.get('token');
+
+// userId = URL > localStorage
+let userId = tokenFromUrl || localStorage.getItem('userId');
+
+if (tokenFromUrl) {
+    localStorage.setItem('userId', tokenFromUrl);
 }
 
+// ===============================
+// 🌐 API
+// ===============================
+const API_URL = 'http://localhost:3000';
+
 export const DataManager = {
+    // -------------------------------
+    // 👤 Création / garantie utilisateur
+    // -------------------------------
+    async ensureUser() {
+        if (userId) return userId;
+
+        const response = await fetch(`${API_URL}/create-user`, {
+            method: 'POST'
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur création utilisateur');
+        }
+
+        const data = await response.json();
+        userId = data.userId;
+        localStorage.setItem('userId', userId);
+
+        return userId;
+    },
+
+    // -------------------------------
+    // 📥 Charger les offres
+    // -------------------------------
     async loadOffers() {
-        try {
-            const id = await getUserId();
-            const res = await fetch(`http://localhost:3000/offers/${id}`);
-            if (!res.ok) throw new Error(`Erreur ${res.status}`);
-            const offers = await res.json();
-            return offers;
-        } catch (e) {
-            console.error("Erreur lors du chargement des offres :", e);
-            return [];
+        const id = await this.ensureUser();
+
+        const response = await fetch(`${API_URL}/offers/${id}`);
+
+        if (!response.ok) {
+            throw new Error(`Erreur ${response.status}`);
         }
+
+        return await response.json();
     },
 
+    // -------------------------------
+    // ➕ Ajouter une offre
+    // -------------------------------
     async addOffer(offer) {
-        try {
-            const id = await getUserId();
-            const res = await fetch(`http://localhost:3000/offers/${id}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(offer)
-            });
-            if (!res.ok) throw new Error(`Erreur ${res.status}`);
-            const offers = await res.json();
-            return offers;
-        } catch (e) {
-            console.error("Erreur lors de l'ajout :", e);
-            return [];
+        const id = await this.ensureUser();
+
+        const response = await fetch(`${API_URL}/offers/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(offer)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur ${response.status}`);
+        }
+
+        return await response.json();
+    },
+
+    // -------------------------------
+    // 🗑️ Supprimer une offre
+    // -------------------------------
+    async deleteOffer(idOffer) {
+        const id = await this.ensureUser();
+
+        const response = await fetch(`${API_URL}/offers/${id}/${idOffer}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur suppression');
         }
     },
 
-    async updateOffer(offerId, updates) {
-        try {
-            const id = await getUserId();
-            const res = await fetch(`http://localhost:3000/offers/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: offerId, updates })
-            });
-            if (!res.ok) throw new Error(`Erreur ${res.status}`);
-            const offers = await res.json();
-            return offers;
-        } catch (e) {
-            console.error("Erreur lors de la mise à jour :", e);
-            return [];
+    // -------------------------------
+    // 🔄 Toggle postulée
+    // -------------------------------
+    async togglePostulated(idOffer) {
+        const id = await this.ensureUser();
+
+        const response = await fetch(`${API_URL}/offers/${id}/${idOffer}/toggle`, {
+            method: 'PATCH'
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur mise à jour');
         }
     },
 
-    async deleteOffer(offerId) {
-        try {
-            const id = await getUserId();
-            const res = await fetch(`http://localhost:3000/offers/${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: offerId })
-            });
-            if (!res.ok) throw new Error(`Erreur ${res.status}`);
-            const offers = await res.json();
-            return offers;
-        } catch (e) {
-            console.error("Erreur lors de la suppression :", e);
-            return [];
-        }
-    },
-
-    loadNotifiedIds() {
-        const stored = localStorage.getItem('jobtracker_notified');
-        return new Set(stored ? JSON.parse(stored) : []);
-    },
-
-    saveNotifiedIds(set) {
-        localStorage.setItem('jobtracker_notified', JSON.stringify([...set]));
+    // -------------------------------
+    // 🔗 Lien magique
+    // -------------------------------
+    getMagicLink() {
+        if (!userId) return null;
+        return `${window.location.origin}${window.location.pathname}?token=${userId}`;
     }
 };
