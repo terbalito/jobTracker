@@ -16,8 +16,16 @@ if (tokenFromUrl) {
 // ===============================
 // 🌐 API
 // ===============================
-const API_URL = 'https://job-tracker-ouli.onrender.com';
-// const API_URL = 'http://localhost:3000';
+
+// Détection automatique de l'URL de l'API
+const API_URL = (() => {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost') {
+        return 'http://localhost:3000'; // local
+    } else {
+        return `${window.location.protocol}//${window.location.host}`; // prod (Render)
+    }
+})();
 
 export const DataManager = {
     // -------------------------------
@@ -81,13 +89,17 @@ export const DataManager = {
     async deleteOffer(idOffer) {
         const id = await this.ensureUser();
 
-        const response = await fetch(`${API_URL}/offers/${id}/${idOffer}`, {
-            method: 'DELETE'
+        const response = await fetch(`${API_URL}/offers/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: idOffer })
         });
 
         if (!response.ok) {
             throw new Error('Erreur suppression');
         }
+
+        return await response.json();
     },
 
     // -------------------------------
@@ -96,13 +108,17 @@ export const DataManager = {
     async togglePostulated(idOffer) {
         const id = await this.ensureUser();
 
-        const response = await fetch(`${API_URL}/offers/${id}/${idOffer}/toggle`, {
-            method: 'PATCH'
+        const response = await fetch(`${API_URL}/offers/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: idOffer, updates: {} }) // mettre ici updates selon ton besoin
         });
 
         if (!response.ok) {
             throw new Error('Erreur mise à jour');
         }
+
+        return await response.json();
     },
 
     // -------------------------------
