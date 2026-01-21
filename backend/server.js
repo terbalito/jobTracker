@@ -82,22 +82,16 @@ app.delete('/offers/:userId/:offerId', (req, res) => {
 });
 
 // ------------------
-// SERVIR HTML
+// SERVIR HTML à la racine
 // ------------------
-const FRONTEND_DIR = path.join(__dirname, '../frontend');
-app.use(express.static(FRONTEND_DIR));
+app.use(express.static(__dirname));
 
 // Route explicite pour index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
-});
-
-// Optionnel : fallback pour n’importe quelle autre route front
-app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ------------------
-// START
+// START SERVER
 // ------------------
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
