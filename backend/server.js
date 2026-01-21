@@ -10,23 +10,33 @@ const app = express();
 const PORT = 3000;
 const DATA_FILE = './data/offres.json';
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-// Servir le build React
-app.use(express.static(path.join(__dirname, '../frontend/build')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
-});
-
 // ⚡ CORS – autoriser ton front
+const allowedOrigins = [
+  'https://job-tracker-ouli.onrender.com', // prod
+  'http://localhost:53485',               // ton front local (ou change le port si différent)
+  'http://localhost:3000'                 // si tu veux tester depuis le serveur lui-même
+];
+
 app.use(cors({
-  origin: 'https://job-tracker-ouli.onrender.com'
+  origin: function(origin, callback){
+    // autoriser les requêtes sans origin (Postman, fetch direct)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.includes(origin)){
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
+
 app.use(bodyParser.json());
+
+// ========================
+// ==== ROUTES API ====
+// ========================
 
 // Crée un nouvel utilisateur et renvoie un userId
 app.post('/create-user', (req, res) => {
@@ -87,6 +97,24 @@ app.delete('/offers/:userId', (req, res) => {
   res.json(data[userId]);
 });
 
+// ========================
+// ==== SERVIR REACT ====
+// ========================
 
-// Démarrer le serveur
+// Servir les fichiers statiques du build React
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Catch-all pour React : **le dernier middleware**
+// ⚠️ On laisse passer les routes API
+app.use((req, res, next) => {
+  if (req.path.startsWith('/offers') || req.path.startsWith('/create-user')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
+
+// ========================
+// ==== START SERVER ====
+// ========================
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
