@@ -1,0 +1,318 @@
+:root {
+    --bg-dark: #121212;
+    --bg-card: #1e1e1e;
+    --accent-yellow: #FFD700;
+    --accent-orange: #FF8C00;
+    --text-beige: #F5F5DC;
+    --text-muted: #a0a0a0;
+    --danger: #ff4757;
+    --success: #2ed573;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-beige);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Dashboard */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #333;
+    transition: var(--transition);
+}
+
+.stat-card .stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent-yellow);
+}
+
+.stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-card.urgent {
+    border-color: var(--accent-orange);
+}
+.stat-card.urgent .stat-value {
+    color: var(--accent-orange);
+}
+
+/* Form */
+.add-offer-section {
+    margin-bottom: 25px;
+}
+
+#toggle-form-btn {
+    width: 100%;
+    padding: 15px;
+    background: transparent;
+    border: 2px dashed #444;
+    color: var(--text-beige);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: var(--transition);
+}
+
+#toggle-form-btn:hover {
+    border-color: var(--accent-yellow);
+    color: var(--accent-yellow);
+}
+
+#job-form {
+    background: var(--bg-card);
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: slideDown 0.4s ease-out;
+}
+
+.hidden { display: none !important; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+input, textarea {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    outline: none;
+}
+
+input:focus, textarea:focus {
+    border-color: var(--accent-yellow);
+}
+
+textarea {
+    grid-column: span 2;
+    height: 80px;
+    resize: none;
+}
+
+.date-input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-submit {
+    background: var(--accent-yellow);
+    color: black;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    flex: 2;
+}
+
+.btn-secondary {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-btn.active {
+    background: var(--accent-yellow);
+    color: black;
+    border-color: var(--accent-yellow);
+}
+
+/* Offers List */
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.offer-card {
+    background: var(--bg-card);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #333;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: var(--transition);
+    animation: fadeIn 0.5s ease;
+}
+
+.offer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.1);
+    border-color: var(--accent-yellow);
+}
+
+.offer-card.urgent-card {
+    border-left: 5px solid var(--accent-orange);
+    animation: pulse 2s infinite;
+}
+
+.offer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.offer-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.offer-company {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.offer-status-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.status-applied { background: var(--success); color: white; }
+.status-pending { background: #444; color: white; }
+
+.offer-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #333;
+}
+
+.offer-deadline {
+    font-size: 0.85rem;
+    color: var(--accent-orange);
+}
+
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: #333;
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+
+.btn-icon:hover {
+    background: var(--accent-yellow);
+    color: black;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { border-color: var(--accent-orange); box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); }
+    70% { border-color: var(--accent-yellow); box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+    100% { border-color: var(--accent-orange); box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-card);
+    border-left: 4px solid var(--accent-orange);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+    z-index: 1000;
+    animation: slideInRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    textarea { grid-column: span 1; }
+    .dashboard { grid-template-columns: 1fr 1fr; }
+}
