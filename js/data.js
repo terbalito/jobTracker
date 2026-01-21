@@ -16,7 +16,7 @@ if (tokenFromUrl) {
 // ===============================
 // 🌐 API
 // ===============================
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://job-tracker-ouli.onrender.com';
 
 export const DataManager = {
     // -------------------------------
