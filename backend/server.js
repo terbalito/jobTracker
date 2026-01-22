@@ -8,10 +8,19 @@ import { fileURLToPath } from 'url';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = './data/offres.json';
+// const DATA_FILE = './data/offres.json';
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+
+const DATA_FILE = path.join(dataDir, 'offres.json');
+if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, '{}', 'utf8');
 
 // ------------------
 // Détecter la racine du projet (Render / local)

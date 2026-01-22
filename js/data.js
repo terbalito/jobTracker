@@ -89,14 +89,30 @@ export const DataManager = {
     async deleteOffer(idOffer) {
         const id = await this.ensureUser();
 
-        const response = await fetch(`${API_URL}/offers/${id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: idOffer })
+        const response = await fetch(`${API_URL}/offers/${id}/${idOffer}`, {
+            method: 'DELETE'
         });
 
         if (!response.ok) {
             throw new Error('Erreur suppression');
+        }
+
+        return await response.json();
+    },
+    // -------------------------------
+    // 🔄 Mettre à jour une offre
+    // -------------------------------
+    async updateOffer(idOffer, updates) {
+        const id = await this.ensureUser();
+
+        const response = await fetch(`${API_URL}/offers/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: idOffer, updates })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur mise à jour');
         }
 
         return await response.json();
