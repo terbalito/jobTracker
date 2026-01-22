@@ -53,11 +53,13 @@
 
 #login-btn {
     background-color: #FFD700;
-    color: black;
+    color: #121212;
 }
 
 #login-btn:hover {
-    opacity: 0.9;
+    background-color: #FFCC00; /* jaune un peu plus foncé */
+    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+    transform: translateY(-1px);
 }
 
 #signup-btn {
@@ -68,12 +70,19 @@
 
 #signup-btn:hover {
     background-color: #FFD700;
-    color: black;
+    color: #121212;
+    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+    transform: translateY(-1px);
 }
 
 #auth-error {
     color: #ff4757;
     font-weight: bold;
+}
+
+#auth-screen button:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 #switch-auth {
