@@ -1,6 +1,20 @@
 // app.js
 import { DataManager } from './data.js';
 
+const token = localStorage.getItem('token');
+const authScreen = document.getElementById('auth-screen');
+const appContainer = document.querySelector('.app-container');
+
+if (!token) {
+    authScreen.classList.remove('hidden');
+    appContainer.classList.add('hidden');
+} else {
+    authScreen.classList.add('hidden');
+    appContainer.classList.remove('hidden');
+    
+}
+
+
 class JobTrackerApp {
     constructor() {
         this.offers = [];
@@ -254,5 +268,4 @@ class JobTrackerApp {
     }
 }
 
-// Lancement
 new JobTrackerApp();
