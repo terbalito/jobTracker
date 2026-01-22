@@ -14,6 +14,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ------------------
+// Détecter la racine du projet (Render / local)
+// ------------------
+const PROJECT_ROOT = path.resolve(__dirname, '..'); // index.html est à la racine, un niveau au-dessus de backend
+
+// ------------------
 // CORS
 // ------------------
 const allowedOrigins = [
@@ -82,13 +87,13 @@ app.delete('/offers/:userId/:offerId', (req, res) => {
 });
 
 // ------------------
-// SERVIR HTML à la racine
+// SERVIR HTML (index.html à la racine du projet)
 // ------------------
-app.use(express.static(__dirname));
+app.use(express.static(PROJECT_ROOT));
 
 // Route explicite pour index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(PROJECT_ROOT, 'index.html'));
 });
 
 // ------------------
