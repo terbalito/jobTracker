@@ -292,51 +292,7 @@ textarea {
     color: var(--text-light);
 } */
 
-/* Auth Screen */
-#auth-screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1e1e2f 0%, #2a2a3d 100%);
-    padding: 20px;
-}
 
-#auth-screen h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: var(--primary);
-    text-align: center;
-}
-
-#auth-screen input {
-    width: 300px;
-    padding: 12px 15px;
-    margin-bottom: 15px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--bg-card);
-    color: var(--text-light);
-    font-size: 1rem;
-}
-
-#auth-screen input::placeholder {
-    color: var(--text-beige);
-    opacity: 0.7;
-}
-
-#auth-screen button {
-    width: 300px;
-    padding: 12px;
-    margin-bottom: 10px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
 
 #login-btn {
     background-color: var(--primary);
@@ -365,12 +321,7 @@ textarea {
     text-align: center;
 }
 
-/* Card-like wrapper pour la connexion */
-#auth-screen {
-    max-width: 380px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-}
+
 
 
 /* Wrapper pour centrer l'écran auth */
@@ -383,49 +334,11 @@ textarea {
     padding: 20px;
 }
 
-/* La card de login */
-#auth-screen {
-    background: var(--bg-card);
-    max-width: 380px;
-    width: 100%;
-    padding: 30px 25px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-}
 
-#auth-screen h2 {
-    color: var(--accent-yellow);
-    margin-bottom: 20px;
-}
 
-/* Inputs & Buttons */
-#auth-screen input {
-    width: 100%;
-    padding: 12px 15px;
-    border: none;
-    border-radius: 10px;
-    background-color: #2a2a2a;
-    color: var(--text-beige);
-    font-size: 1rem;
-}
 
-#auth-screen input::placeholder {
-    color: var(--text-muted);
-}
 
-#auth-screen button {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: var(--transition);
-}
+
 
 #login-btn {
     background-color: var(--accent-yellow);
@@ -464,12 +377,7 @@ textarea {
     color: var(--accent-yellow);
 }
 
-/* Responsive */
-@media (max-width: 500px) {
-    #auth-screen {
-        padding: 25px 15px;
-    }
-}
+
 
 
 /* Animations */

@@ -36,18 +36,19 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 // ------------------
 const allowedOrigins = [
   'https://job-tracker-ouli.onrender.com', 
+  'http://localhost:3000',
   'http://localhost:53485',
-  'http://localhost:3000'
+  'http://localhost:56247'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // Postman ou requêtes sans origin
+    if (!origin) return callback(null, true); // Postman ou fichiers locaux
     if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
-  }
+  },
+  credentials: true
 }));
-
 // ------------------
 // Body Parser
 // ------------------

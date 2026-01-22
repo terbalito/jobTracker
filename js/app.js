@@ -1,20 +1,6 @@
 // app.js
 import { DataManager } from './data.js';
 
-const token = localStorage.getItem('token');
-const authScreen = document.getElementById('auth-screen');
-const appContainer = document.querySelector('.app-container');
-
-if (!token) {
-    authScreen.classList.remove('hidden');
-    appContainer.classList.add('hidden');
-} else {
-    authScreen.classList.add('hidden');
-    appContainer.classList.remove('hidden');
-    
-}
-
-
 class JobTrackerApp {
     constructor() {
         this.offers = [];
@@ -32,19 +18,21 @@ class JobTrackerApp {
     }
 
     async init() {
+        const token = localStorage.getItem('token');
+        if (!token) return; // 🛑 sécurité supplémentaire
+
         await this.loadOffers();
         this.bindEvents();
         this.render();
 
-        // Surveillance des deadlines toutes les 30s
         setInterval(() => this.checkDeadlines(), 30000);
-        this.checkDeadlines(); // premier check
+        this.checkDeadlines();
     }
 
     async loadOffers() {
         try {
             this.offers = await DataManager.loadOffers();
-            console.log("OFFRES CHARGEES :", this.offers);
+            // console.log("OFFRES CHARGEES :", this.offers);
         } catch (err) {
             console.error("Erreur lors du chargement des offres :", err);
             this.offers = [];
@@ -268,4 +256,22 @@ class JobTrackerApp {
     }
 }
 
-new JobTrackerApp();
+const token = localStorage.getItem('token');
+const authScreen = document.getElementById('auth-screen');
+const appContainer = document.querySelector('.app-container');
+const authWrapper = document.querySelector('.auth-wrapper');
+// const appContainer = document.querySelector('.app-container');
+
+if (token) {
+    authScreen.classList.add('hidden');
+    appContainer.classList.remove('hidden');
+    authWrapper.classList.add('hidden');
+    // appContainer.classList.remove('hidden')
+    new JobTrackerApp(); // ✅ ici c’est bon
+} else {
+    authScreen.classList.remove('hidden');
+    appContainer.classList.add('hidden');
+    authWrapper.classList.remove('hidden');
+    // appContainer.classList.add('hidden');
+}
+

@@ -31,17 +31,26 @@ async function auth(type) {
 document.getElementById('signup-btn').onclick = () => auth('signup');
 document.getElementById('login-btn').onclick = () => auth('login');
 
-const authTitle = document.getElementById('auth-title');
+const switchAuth = document.getElementById('switch-auth');
 const loginBtn = document.getElementById('login-btn');
 const signupBtn = document.getElementById('signup-btn');
-const switchAuth = document.getElementById('switch-auth');
+const authTitle = document.getElementById('auth-title');
 
 let isLogin = true;
 
-switchAuth.onclick = () => {
-  isLogin = !isLogin;
-  authTitle.textContent = isLogin ? 'Se connecter' : "S'inscrire";
-  loginBtn.style.display = isLogin ? 'block' : 'none';
-  signupBtn.style.display = isLogin ? 'none' : 'block';
-  switchAuth.textContent = isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter";
-};
+switchAuth.addEventListener('click', () => {
+    isLogin = !isLogin;
+
+    if (isLogin) {
+        authTitle.textContent = 'Se connecter';
+        loginBtn.classList.remove('hidden');
+        signupBtn.classList.add('hidden');
+        switchAuth.textContent = "Pas encore de compte ? S'inscrire";
+    } else {
+        authTitle.textContent = 'Créer un compte';
+        loginBtn.classList.add('hidden');
+        signupBtn.classList.remove('hidden');
+        switchAuth.textContent = 'Déjà un compte ? Se connecter';
+    }
+});
+
