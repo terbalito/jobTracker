@@ -2,15 +2,6 @@ const API_URL = location.hostname === 'localhost'
   ? 'http://localhost:3000'
   : `${location.protocol}//${location.host}`;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const signupBtn = document.getElementById('signup-btn');
-    const loginBtn = document.getElementById('login-btn');
-
-    if (signupBtn) signupBtn.onclick = () => auth('signup');
-    if (loginBtn) loginBtn.onclick = () => auth('login');
-});
-
-
 async function auth(type) {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
@@ -54,4 +45,3 @@ switchAuth.onclick = () => {
   signupBtn.style.display = isLogin ? 'none' : 'block';
   switchAuth.textContent = isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter";
 };
-

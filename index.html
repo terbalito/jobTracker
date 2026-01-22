@@ -10,16 +10,21 @@
 
 </head>
 <body>
-    <section id="auth-screen">
-        <h2>JobTracker Pro</h2>
-        <input id="username" placeholder="Nom d'utilisateur">
-        <input id="password" type="password" placeholder="Mot de passe">
+    
+        <section id="auth-screen">
+            <h2 id="auth-title">Se connecter</h2>
 
-        <button id="login-btn">Se connecter</button>
-        <button id="signup-btn">Créer un compte</button>
+            <input id="username" placeholder="Nom d'utilisateur">
+            <input id="password" type="password" placeholder="Mot de passe">
 
-        <p id="auth-error"></p>
-    </section>
+            <button id="login-btn">Se connecter</button>
+            <button id="signup-btn" class="hidden">Créer un compte</button>
+
+            <p id="auth-error"></p>
+
+            <span id="switch-auth">Pas encore de compte ? S'inscrire</span>
+        </section>
+
     <div class="app-container">
         <!-- Dashboard Stats -->
         <header class="dashboard">

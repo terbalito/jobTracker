@@ -373,6 +373,105 @@ textarea {
 }
 
 
+/* Wrapper pour centrer l'écran auth */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%); */
+    padding: 20px;
+}
+
+/* La card de login */
+#auth-screen {
+    background: var(--bg-card);
+    max-width: 380px;
+    width: 100%;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+}
+
+#auth-screen h2 {
+    color: var(--accent-yellow);
+    margin-bottom: 20px;
+}
+
+/* Inputs & Buttons */
+#auth-screen input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2a2a2a;
+    color: var(--text-beige);
+    font-size: 1rem;
+}
+
+#auth-screen input::placeholder {
+    color: var(--text-muted);
+}
+
+#auth-screen button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#login-btn {
+    background-color: var(--accent-yellow);
+    color: black;
+}
+
+#login-btn:hover {
+    opacity: 0.9;
+}
+
+#signup-btn {
+    background-color: transparent;
+    color: var(--accent-yellow);
+    border: 2px solid var(--accent-yellow);
+}
+
+#signup-btn:hover {
+    background-color: var(--accent-yellow);
+    color: black;
+}
+
+#auth-error {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+#switch-auth {
+    color: var(--accent-orange);
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+#switch-auth:hover {
+    color: var(--accent-yellow);
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+    #auth-screen {
+        padding: 25px 15px;
+    }
+}
+
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
