@@ -11,12 +11,39 @@
     
 </head>
 <body>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    // Config Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCctInHQCrbOjJM_KRzJAOVcnNsSF-d3sc",
+        authDomain: "jobtracker-1e97f.firebaseapp.com",
+        projectId: "jobtracker-1e97f",
+        storageBucket: "jobtracker-1e97f.firebasestorage.app",
+        messagingSenderId: "1052589010482",
+        appId: "1:1052589010482:web:99a79df3c396fca97b562b",
+        measurementId: "G-D8KG274ZSL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // On expose auth et firestore globalement pour app.js / auth.js
+    window.auth = auth;
+    window.db = db;
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    </script>
+
     
     <div class="auth-wrapper">
         <section id="auth-screen">
             <h2 id="auth-title">Se connecter</h2>
 
-            <input id="username" placeholder="Nom d'utilisateur">
+            <input id="username" placeholder="Adresse mail">
             <input id="password" type="password" placeholder="Mot de passe">
             <input id="password-confirm" type="password" placeholder="Confirmer le mot de passe" class="hidden">
             <button id="login-btn">Se connecter</button>
@@ -107,7 +134,7 @@
     <audio id="snd-alert" src="alert.mp3"></audio>
 
     <script type="module" src="js/app.js"></script>
-    <script src="./js/auth.js"></script>
-
+    <script type="module" src="js/auth.js"></script>
+    <!-- <script type="module" src="backebd/firebase.js"></script> -->
 </body>
 </html>
