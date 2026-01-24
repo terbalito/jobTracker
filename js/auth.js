@@ -1,6 +1,8 @@
 // auth.js
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../backend/firebase.js"; // chemin vers ton firebase.js
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
 // DOM
 const loginBtn = document.getElementById("login-btn");

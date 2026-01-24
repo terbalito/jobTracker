@@ -7,7 +7,22 @@ import { firebaseAuth } from "./firebaseAuthMiddleware.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173', // ou ton port Vite
+  'https://jobtracker-q655.onrender.com'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if(!origin) return callback(null, true); // pour Postman ou fetch sans origin
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'CORS policy: this origin is not allowed';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
+
 app.use(bodyParser.json());
 
 // --- JOBS ---

@@ -1,18 +1,15 @@
 // ===============================
 // 🌐 API
 // ===============================
-const API_URL = (() => {
+const API_URL = import.meta.env.VITE_API_URL || (() => {
   const hostname = window.location.hostname;
-  if (hostname === 'localhost') {
-    return 'http://localhost:3000';
-  }
+  if (hostname === 'localhost') return 'http://localhost:3000';
   return `${window.location.protocol}//${window.location.host}`;
 })();
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('Non connecté');
-
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
