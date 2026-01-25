@@ -1,31 +1,30 @@
 // backend/jobs.js
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db } from "./firebase.js";
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { db } from "./firebaseAdmin.js"; // Firebase Admin
 
 // Ajouter un job
 export async function addJob(job) {
-  const docRef = await addDoc(collection(db, "jobs"), job);
+  const docRef = await db.collection("jobs").add(job);
   return docRef.id;
 }
 
 // Lire tous les jobs pour un user
 export async function getJobs(userId) {
-  const querySnapshot = await getDocs(collection(db, "jobs"));
-  return querySnapshot.docs
+  const snapshot = await db.collection("jobs").get();
+  const jobs = snapshot.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
     .filter(job => job.userId === userId);
+  return jobs;
 }
+
 
 // Mettre à jour un job
 export async function updateJob(id, updates) {
-  const docRef = doc(db, "jobs", id);
-  await updateDoc(docRef, updates);
+  const docRef = db.collection("jobs").doc(id);
+  await docRef.update(updates);
 }
 
 // Supprimer un job
 export async function deleteJob(id) {
-  const docRef = doc(db, "jobs", id);
-  await deleteDoc(docRef);
+  const docRef = db.collection("jobs").doc(id);
+  await docRef.delete();
 }

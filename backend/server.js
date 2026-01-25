@@ -3,12 +3,14 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { addJob, getJobs, updateJob, deleteJob } from "./jobs.js";
 import { firebaseAuth } from "./firebaseAuthMiddleware.js";
+import "dotenv/config";
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
-  'http://localhost:5173', // ou ton port Vite
+  'http://localhost:54344', // ou ton port Vite
   'https://jobtracker-q655.onrender.com'
 ];
 

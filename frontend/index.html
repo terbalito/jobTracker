@@ -6,36 +6,37 @@
     <title>JobTracker Pro | Gestionnaire d'Opportunités</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
+    <!-- <link rel="stylesheet" href="css/app.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
 </head>
 <body>
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    // Config Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyCctInHQCrbOjJM_KRzJAOVcnNsSF-d3sc",
-        authDomain: "jobtracker-1e97f.firebaseapp.com",
-        projectId: "jobtracker-1e97f",
-        storageBucket: "jobtracker-1e97f.firebasestorage.app",
-        messagingSenderId: "1052589010482",
-        appId: "1:1052589010482:web:99a79df3c396fca97b562b",
-        measurementId: "G-D8KG274ZSL"
-    };
+        // Config Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCctInHQCrbOjJM_KRzJAOVcnNsSF-d3sc",
+            authDomain: "jobtracker-1e97f.firebaseapp.com",
+            projectId: "jobtracker-1e97f",
+            storageBucket: "jobtracker-1e97f.firebasestorage.app",
+            messagingSenderId: "1052589010482",
+            appId: "1:1052589010482:web:99a79df3c396fca97b562b",
+            measurementId: "G-D8KG274ZSL"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    // On expose auth et firestore globalement pour app.js / auth.js
-    window.auth = auth;
-    window.db = db;
-    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        // On expose auth et firestore globalement pour app.js / auth.js
+        window.auth = auth;
+        window.db = db;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
     </script>
 
     
@@ -74,6 +75,10 @@
                 <span class="stat-value">0</span>
                 <span class="stat-label">Urgentes</span>
             </div>
+            <div class="stat-card expired" id="stat-expired">
+                <span class="stat-value">0</span>
+                <span class="stat-label">Expirées</span>
+            </div>
         </header>
 
         <main class="content">
@@ -111,6 +116,9 @@
                 </button>
                 <button class="filter-btn" data-filter="postulated">
                     <i class="fas fa-check-circle"></i> Postulées
+                </button>
+                <button class="filter-btn" data-filter="expired">
+                    <i class="fas fa-clock"></i> Expirées
                 </button>
             </nav>
 

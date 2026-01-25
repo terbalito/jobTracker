@@ -1,8 +1,9 @@
-// auth.js
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../backend/firebase.js"; // chemin vers ton firebase.js
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+// 🔥 auth.js (Frontend)
+// Utilise uniquement le SDK Firebase Web
+console.log("🔥 auth.js chargé");
+
+// On récupère auth exposé dans window
+const authInstance = window.auth;
 
 // DOM
 const loginBtn = document.getElementById("login-btn");
@@ -54,13 +55,12 @@ signupBtn.addEventListener("click", async () => {
     }
 
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
         const token = await userCredential.user.getIdToken();
         localStorage.setItem("token", token);
-        location.reload();
+        location.reload(); // recharge et affiche le dashboard
     } catch (err) {
         console.error(err);
-        // Traduction des erreurs signup
         switch(err.code) {
             case "auth/email-already-in-use":
                 authError.textContent = "Cet email est déjà utilisé !";
@@ -91,29 +91,27 @@ loginBtn.addEventListener("click", async () => {
     }
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
         const token = await userCredential.user.getIdToken();
         localStorage.setItem("token", token);
         location.reload();
     } catch (err) {
         console.error(err);
-        // Traduction des erreurs login
         switch(err.code) {
             case "auth/user-not-found":
                 authError.textContent = "Utilisateur non trouvé !";
                 break;
             case "auth/wrong-password":
+            case "auth/invalid-credential": // <-- ajouter ça
                 authError.textContent = "Mot de passe incorrect !";
                 break;
             case "auth/invalid-email":
                 authError.textContent = "Email invalide !";
                 break;
-            case "auth/invalid-credential":
-                authError.textContent = "Identifiants incorrects !";
-                break;
             default:
                 authError.textContent = "Erreur lors de la connexion.";
                 break;
         }
+
     }
 });

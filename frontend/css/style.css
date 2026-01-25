@@ -422,3 +422,68 @@ textarea {
     textarea { grid-column: span 1; }
     .dashboard { grid-template-columns: 1fr 1fr; }
 }
+
+
+.stat-card {
+    background: #1e1e1e;
+    padding: 15px 20px;
+    border-radius: 12px;
+    flex: 1 1 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #F5F5DC;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.stat-card .stat-label {
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+/* Urgent stat */
+.stat-card.urgent {
+    border-left: 4px solid #FF4500;
+}
+
+
+
+
+
+/* Expiré : carte grisée + transparence */
+.expired-card {
+    opacity: 0.5;
+    background-color: #3a3a3a; /* plus foncé pour bien voir le grisé */
+    border-left: 4px solid #555; /* laisse le bord gris */
+    color: #ccc; /* texte légèrement plus clair */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
