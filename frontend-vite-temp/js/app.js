@@ -2,6 +2,13 @@
 import { DataManager } from './data.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
+// 🔒 AU DÉMARRAGE : ON CACHE TOUT
+document.getElementById('auth-screen')?.classList.add('hidden');
+document.querySelector('.auth-wrapper')?.classList.add('hidden');
+document.querySelector('.app-container')?.classList.add('hidden');
+
+// ⏳ Le loading-screen DOIT être visible par défaut
+
 
 class JobTrackerApp {
     constructor() {
@@ -242,21 +249,22 @@ class JobTrackerApp {
 }
 
 onAuthStateChanged(window.auth, (user) => {
+    const loading = document.getElementById('loading-screen');
+
     if (user) {
         console.log("✅ Utilisateur connecté :", user.email);
 
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.querySelector('.auth-wrapper').classList.add('hidden');
         document.querySelector('.app-container').classList.remove('hidden');
-
-        new JobTrackerApp(); // 🔥 LANCEMENT AU BON MOMENT
+        new JobTrackerApp(); // 🚀 ON LANCE L’APP ICI
     } else {
         console.log("⛔ Aucun utilisateur connecté");
 
         document.getElementById('auth-screen').classList.remove('hidden');
         document.querySelector('.auth-wrapper').classList.remove('hidden');
-        document.querySelector('.app-container').classList.add('hidden');
     }
+
+    // 🧼 FIN DU LOADING (APRÈS décision auth)
+    loading.classList.add('hidden');
 });
 
 

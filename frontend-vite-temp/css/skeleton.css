@@ -1,0 +1,72 @@
+/* =========================
+   SKELETON GLOBAL
+========================= */
+
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #121212;
+    z-index: 9999;
+    padding: 20px;
+}
+
+/* Animation shimmer */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* =========================
+   DASHBOARD SKELETON
+========================= */
+
+.skeleton-header {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.skeleton-stat {
+    flex: 1 1 150px;
+    height: 80px;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        #1e1e1e 25%,
+        #2a2a2a 37%,
+        #1e1e1e 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s infinite ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+}
+
+/* =========================
+   OFFERS GRID SKELETON
+========================= */
+
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.skeleton-card {
+    height: 160px;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        #1e1e1e 25%,
+        #2a2a2a 37%,
+        #1e1e1e 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s infinite ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+}

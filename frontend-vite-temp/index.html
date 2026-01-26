@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/skeleton.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
@@ -39,7 +40,32 @@
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
     </script>
 
-    
+    <div id="loading-screen" class="loading-screen">
+        <div class="skeleton">
+
+            <!-- Stats -->
+            <div class="skeleton-header">
+                <div class="skeleton-stat"></div>
+                <div class="skeleton-stat"></div>
+                <div class="skeleton-stat"></div>
+                <div class="skeleton-stat"></div>
+                <div class="skeleton-stat"></div>
+            </div>
+
+            <!-- Cards -->
+            <div class="skeleton-grid">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+
+        </div>
+    </div>
+
+
     <div class="auth-wrapper">
         <section id="auth-screen">
             <h2 id="auth-title">Se connecter</h2>
