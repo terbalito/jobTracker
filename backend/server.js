@@ -15,14 +15,7 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function(origin, callback) {
-    if(!origin) return callback(null, true); // pour Postman ou fetch sans origin
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'CORS policy: this origin is not allowed';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
+  origin: "*" // autorise toutes les origines
 }));
 
 app.use(bodyParser.json());

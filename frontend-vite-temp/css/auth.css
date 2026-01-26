@@ -1,0 +1,117 @@
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+    padding: 20px;
+}
+
+#auth-screen {
+    background: #1e1e1e;
+    max-width: 380px;
+    width: 100%;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+}
+
+#auth-screen h2 {
+    color: #FFD700;
+    margin-bottom: 20px;
+}
+
+#auth-screen input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2a2a2a;
+    color: #F5F5DC;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+#auth-screen input::placeholder {
+    color: #a0a0a0;
+}
+
+#auth-screen button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 10px;
+}
+
+#login-btn {
+    background-color: #FFD700;
+    color: #121212;
+}
+
+#login-btn:hover {
+    background-color: #FFCC00; /* jaune un peu plus foncé */
+    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+#signup-btn {
+    background-color: transparent;
+    color: #FFD700;
+    border: 2px solid #FFD700;
+}
+
+#signup-btn:hover {
+    background-color: #FFD700;
+    color: #121212;
+    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+#auth-error {
+    color: #ff4757;
+    font-weight: bold;
+}
+
+#auth-screen button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+#switch-auth {
+    color: #FF8C00;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#switch-auth:hover {
+    color: #FFD700;
+}
+
+@media (max-width: 500px) {
+    #auth-screen {
+        padding: 25px 15px;
+    }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.3s;
+}
