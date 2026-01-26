@@ -2,15 +2,11 @@
 // 🌐 DataManager - communication avec le backend
 // ===============================
 console.log("data.js chargé correctement");
-const API_URL = (() => {
-    const hostname = window.location.hostname;
-    // local
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:3000';
-    }
-    // prod → backend Render
-    return 'https://jobtracker-q655.onrender.com';
-})();
+
+// URL de l'API (gérée par Vite)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+console.log("API utilisée :", API_URL);
 
 // Récupérer le token Firebase dans le localStorage
 async function getAuthHeaders() {
@@ -25,7 +21,6 @@ async function getAuthHeaders() {
         "Authorization": `Bearer ${token}`
     };
 }
-
 
 // Gestion des réponses
 async function handleResponse(res) {
@@ -44,16 +39,17 @@ async function handleResponse(res) {
 export const DataManager = {
     // Charger toutes les offres
     async loadOffers() {
-        const res = await fetch(`${API_URL}/offers`, { headers: await getAuthHeaders() });
+        const res = await fetch(`${API_URL}/offers`, {
+            headers: await getAuthHeaders()
+        });
         return handleResponse(res);
     },
-// ✅ VIRGULE MANQUANTE ICI
 
     // Ajouter une offre
     async addOffer(offer) {
         const res = await fetch(`${API_URL}/offers`, {
             method: 'POST',
-            headers: await getAuthHeaders(), // ✅ await
+            headers: await getAuthHeaders(),
             body: JSON.stringify(offer)
         });
         return handleResponse(res);
@@ -62,7 +58,7 @@ export const DataManager = {
     async updateOffer(id, updates) {
         const res = await fetch(`${API_URL}/offers/${id}`, {
             method: 'PATCH',
-            headers: await getAuthHeaders(), // ✅ await
+            headers: await getAuthHeaders(),
             body: JSON.stringify(updates)
         });
         return handleResponse(res);
@@ -71,10 +67,8 @@ export const DataManager = {
     async deleteOffer(id) {
         const res = await fetch(`${API_URL}/offers/${id}`, {
             method: 'DELETE',
-            headers: await getAuthHeaders() // ✅ await
+            headers: await getAuthHeaders()
         });
         return handleResponse(res);
     }
-
 };
-
