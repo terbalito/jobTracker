@@ -169,7 +169,7 @@ textarea {
     background: transparent;
     border: 1px solid #444;
     color: var(--text-muted);
-    padding: 8px 16px;
+    padding: 8px 10px;
     border-radius: 20px;
     cursor: pointer;
     transition: var(--transition);

@@ -21,13 +21,13 @@
 }
 
 /* Statut */
-.status-applied {
+/* .status-applied {
     background: #FFD700;
     color: #121212;
     padding: 3px 8px;
     border-radius: 8px;
     font-size: 0.8rem;
-}
+} */
 
 .status-pending {
     background: #2a2a2a;
@@ -50,7 +50,7 @@
 }
 
 /* Actions */
-.action-btns {
+/* .action-btns {
     display: flex;
     gap: 10px;
     margin-top: 10px;
@@ -67,7 +67,7 @@
 
 .btn-icon:hover {
     color: #FFCC00;
-}
+} */
 
 /* Stat-cards */
 .dashboard {
