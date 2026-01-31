@@ -1,4 +1,3 @@
-
 import { DataManager } from './data.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
@@ -9,6 +8,11 @@ document.querySelector('.app-container')?.classList.add('hidden');
 
 // ⏳ Le loading-screen DOIT être visible par défaut
 
+// ⚡ DOM nécessaires pour le menu et l'email
+const menuBtn = document.getElementById('menu-btn');
+const menuPanel = document.getElementById('menu-panel');
+const logoutBtn = document.getElementById('logout-btn');
+const userEmailSpan = document.getElementById('user-email');
 
 class JobTrackerApp {
     constructor() {
@@ -16,20 +20,31 @@ class JobTrackerApp {
         this.currentFilter = 'all';
         this.notifiedIds = new Set();
 
-        // DOM Elements
         this.listContainer = document.getElementById('offers-list');
         this.form = document.getElementById('job-form');
         this.toggleBtn = document.getElementById('toggle-form-btn');
         this.cancelBtn = document.getElementById('cancel-form');
         this.emptyState = document.getElementById('empty-state');
 
-        this.init();
+        this.loadingScreen = document.getElementById('loading-screen');
+
+        this.start(); // ⬅️ nouveau point d’entrée
     }
 
-    async init() {
-        await this.loadOffers();  // on peut appeler loadOffers ici
-        this.bindEvents();
-        this.render();
+    async start() {
+        try {
+            await this.loadOffers();   // ⏳ on attend VRAIMENT les données
+            this.bindEvents();
+            this.render();
+            this.hideSkeleton(); 
+
+            // ✅ SEULEMENT ICI on affiche l’app
+            this.loadingScreen.classList.add('hidden');
+            document.querySelector('.app-container').classList.remove('hidden');
+
+        } catch (err) {
+            console.error("Erreur init app :", err);
+        }
     }
 
     async loadOffers() {
@@ -42,7 +57,22 @@ class JobTrackerApp {
         }
     }
 
+    hideSkeleton() {
+        const skeleton = document.getElementById('loading-screen');
+        const appContainer = document.querySelector('.app-container');
+
+        if (skeleton) skeleton.classList.add('hidden');
+        if (appContainer) appContainer.classList.remove('hidden');
+    }
+
+
+
     bindEvents() {
+        if (!this.toggleBtn || !this.form || !this.cancelBtn) {
+            console.warn("⛔ Éléments UI non prêts, bindEvents annulé");
+            return;
+        }
+
         // Toggle Form
         this.toggleBtn.addEventListener('click', () => {
             this.form.classList.toggle('hidden');
@@ -230,15 +260,20 @@ class JobTrackerApp {
         });
     }
 
-    updateStats(){
-        document.querySelector('#stat-total .stat-value').textContent = this.offers.length;
-        document.querySelector('#stat-postulated .stat-value').textContent = this.offers.filter(o=>o.statut==='postulé').length;
-        document.querySelector('#stat-pending .stat-value').textContent = this.offers.filter(o=>o.statut!=='postulé').length;
-        document.querySelector('#stat-urgent .stat-value').textContent = this.offers.filter(o=>this.isUrgent(o.date_limite)&&o.statut!=='postulé').length;
-        // Expirées
-        const expiredCount = this.offers.filter(o=>this.isExpired(o.date_limite)).length;
-        if(document.querySelector('#stat-expired')) document.querySelector('#stat-expired .stat-value').textContent = expiredCount;
+    updateStats() {
+        const total = document.querySelector('#stat-total .stat-value');
+        const postulated = document.querySelector('#stat-postulated .stat-value');
+        const pending = document.querySelector('#stat-pending .stat-value');
+        const urgent = document.querySelector('#stat-urgent .stat-value');
+        const expiredEl = document.querySelector('#stat-expired .stat-value');
+
+        if(total) total.textContent = this.offers.length;
+        if(postulated) postulated.textContent = this.offers.filter(o=>o.statut==='postulé').length;
+        if(pending) pending.textContent = this.offers.filter(o=>o.statut!=='postulé').length;
+        if(urgent) urgent.textContent = this.offers.filter(o=>this.isUrgent(o.date_limite)&&o.statut!=='postulé').length;
+        if(expiredEl) expiredEl.textContent = this.offers.filter(o=>this.isExpired(o.date_limite)).length;
     }
+
 
     showToast(msg){
         const toast = document.getElementById('notification-toast');
@@ -248,24 +283,38 @@ class JobTrackerApp {
     }
 }
 
+// 🔐 Auth state
 onAuthStateChanged(window.auth, (user) => {
-    const loading = document.getElementById('loading-screen');
-
     if (user) {
         console.log("✅ Utilisateur connecté :", user.email);
+        userEmailSpan.textContent = user.email;
 
-        document.querySelector('.app-container').classList.remove('hidden');
-        new JobTrackerApp(); // 🚀 ON LANCE L’APP ICI
+        // ⬅️ L'app DOIT démarrer ici, point.
+        new JobTrackerApp();
+
     } else {
         console.log("⛔ Aucun utilisateur connecté");
-
+        document.getElementById('loading-screen').classList.add('hidden');
         document.getElementById('auth-screen').classList.remove('hidden');
         document.querySelector('.auth-wrapper').classList.remove('hidden');
     }
-
-    // 🧼 FIN DU LOADING (APRÈS décision auth)
-    loading.classList.add('hidden');
 });
 
 
 
+// 🍔 Menu Hamburger
+menuBtn?.addEventListener('click', () => {
+  menuPanel.classList.toggle('hidden');
+});
+
+logoutBtn?.addEventListener('click', async () => {
+  await window.auth.signOut();
+  localStorage.removeItem('token');
+  location.reload();
+});
+
+document.addEventListener('click', (e) => {
+  if (menuPanel && menuBtn && !menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+    menuPanel.classList.add('hidden');
+  }
+});
