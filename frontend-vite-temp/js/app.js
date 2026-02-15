@@ -10,7 +10,7 @@ document.querySelector('.app-container')?.classList.add('hidden');
 const notifBtn = document.createElement('button');
 notifBtn.textContent = "Activer notifications";
 notifBtn.addEventListener('click', () => requestNotificationPermission());
-document.querySelector('.menu-panel').appendChild(notifBtn);
+document.querySelector('.menu-panel')?.appendChild(notifBtn);
 
 // Écouter les messages reçus au premier plan
 listenForegroundMessages();
@@ -21,6 +21,51 @@ const menuPanel = document.getElementById('menu-panel');
 const logoutBtn = document.getElementById('logout-btn');
 const userEmailSpan = document.getElementById('user-email');
 
+// 🍔 Menu Hamburger
+menuBtn?.addEventListener('click', () => menuPanel?.classList.toggle('hidden'));
+logoutBtn?.addEventListener('click', async () => {
+    await window.auth.signOut();
+    localStorage.removeItem('token');
+    location.reload();
+});
+document.addEventListener('click', (e) => {
+    if (menuPanel && menuBtn && !menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+        menuPanel.classList.add('hidden');
+    }
+});
+
+// SW principal de la PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW PWA enregistré :', reg))
+            .catch(err => console.log('Erreur SW PWA :', err));
+    });
+}
+
+// Installation PWA
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+if (installBtn) installBtn.style.display = 'none';
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn && (installBtn.style.display = 'block');
+});
+
+installBtn?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    console.log(choiceResult.outcome === 'accepted' ? "L'utilisateur a installé la PWA !" : "Installation refusée");
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+});
+
+// ========================================
+// 🔹 CLASS PRINCIPALE
+// ========================================
 class JobTrackerApp {
     constructor() {
         this.offers = [];
@@ -32,23 +77,17 @@ class JobTrackerApp {
         this.toggleBtn = document.getElementById('toggle-form-btn');
         this.cancelBtn = document.getElementById('cancel-form');
         this.emptyState = document.getElementById('empty-state');
-
         this.loadingScreen = document.getElementById('loading-screen');
 
-        this.start(); // ⬅️ nouveau point d’entrée
+        this.start();
     }
 
     async start() {
         try {
-            await this.loadOffers();   // ⏳ on attend VRAIMENT les données
+            await this.loadOffers();
             this.bindEvents();
             this.render();
-            this.hideSkeleton(); 
-
-            // ✅ SEULEMENT ICI on affiche l’app
-            this.loadingScreen.classList.add('hidden');
-            document.querySelector('.app-container').classList.remove('hidden');
-
+            this.hideSkeleton();
         } catch (err) {
             console.error("Erreur init app :", err);
         }
@@ -56,42 +95,42 @@ class JobTrackerApp {
 
     async loadOffers() {
         console.log("⏳ Chargement des offres...");
-
         try {
-            // Récupération des données depuis l'API
             const offres = await DataManager.loadOffers();
-
-            // Sécurité : on vérifie que c'est bien un tableau
             this.offers = Array.isArray(offres) ? offres : [];
-
+            localStorage.setItem('offers-cache', JSON.stringify(this.offers));
             console.log("✅ OFFRES CHARGÉES :", this.offers);
-
-            // Flag utile pour le skeleton / rendu
-            this.isOffersLoaded = true;
-
         } catch (err) {
             console.error("❌ Erreur lors du chargement des offres :", err);
-
-            this.offers = [];
-            this.isOffersLoaded = true; // même en erreur → on arrête le skeleton
+            const cached = localStorage.getItem('offers-cache');
+            this.offers = cached ? JSON.parse(cached) : [];
         }
     }
 
+    // hideSkeleton() {
+    //     this.loadingScreen?.classList.add('hidden');
+    //     document.querySelector('.app-container')?.classList.remove('hidden');
+    // }
+    
+    
     hideSkeleton() {
-        const skeleton = document.getElementById('loading-screen');
-        const appContainer = document.querySelector('.app-container');
-
-        if (skeleton) skeleton.classList.add('hidden');
-        if (appContainer) appContainer.classList.remove('hidden');
+        this.loadingScreen?.classList.add('hidden');
+        document.querySelector('.app-container')?.classList.remove('hidden');
     }
 
+    showListSkeleton() {
+        if (!this.listContainer) return;
+
+        const skeletonCards = Array(6).fill(`
+            <div class="skeleton-card"></div>
+        `).join('');
+
+        this.listContainer.innerHTML = skeletonCards;
+    }
 
 
     bindEvents() {
-        if (!this.toggleBtn || !this.form || !this.cancelBtn) {
-            console.warn("⛔ Éléments UI non prêts, bindEvents annulé");
-            return;
-        }
+        if (!this.form || !this.toggleBtn || !this.cancelBtn) return console.warn("⛔ Éléments UI non prêts");
 
         // Toggle Form
         this.toggleBtn.addEventListener('click', () => {
@@ -100,9 +139,9 @@ class JobTrackerApp {
         });
 
         this.cancelBtn.addEventListener('click', () => {
+            this.form.reset();
             this.form.classList.add('hidden');
             this.toggleBtn.classList.remove('hidden');
-            this.form.reset();
         });
 
         // Submission
@@ -111,17 +150,39 @@ class JobTrackerApp {
         // Filters
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
+
                 document.querySelector('.filter-btn.active')?.classList.remove('active');
                 e.currentTarget.classList.add('active');
                 this.currentFilter = e.currentTarget.dataset.filter;
-                await this.loadOffers();
-                this.render();
+
+                // 🔥 AFFICHER SKELETON UNIQUEMENT DANS LA LISTE
+                this.showListSkeleton();
+
+                try {
+                    await this.loadOffers();
+
+                    // petit délai pour effet smooth (optionnel)
+                    setTimeout(() => {
+                        this.render();
+                    }, 10);
+
+                } catch (err) {
+                    console.error(err);
+                }
+
             });
         });
+
     }
 
     async handleSubmit(e) {
         e.preventDefault();
+
+        const submitBtn = this.form.querySelector('.btn-submit');
+
+        // 🔒 Bloquer le bouton
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
 
         const newOffer = {
             titre: document.getElementById('job-title').value,
@@ -133,37 +194,21 @@ class JobTrackerApp {
 
         try {
             this.offers = await DataManager.addOffer(newOffer);
+
             this.form.reset();
             this.form.classList.add('hidden');
             this.toggleBtn.classList.remove('hidden');
+
             this.render();
         } catch (err) {
             console.error("Erreur lors de l'ajout :", err);
+        } finally {
+            // 🔓 Réactiver bouton
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.disabled = false;
         }
     }
 
-    checkDeadlines() {
-        const today = new Date();
-        let urgentCount = 0;
-        let newUrgents = false;
-
-        this.offers.forEach(offer => {
-            if (offer.statut === 'postulé') return;
-
-            const deadline = new Date(offer.date_limite);
-            const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-
-            if (diffDays >= 0 && diffDays <= 2) {
-                urgentCount++;
-                if (!this.notifiedIds.has(offer.id)) {
-                    this.notifiedIds.add(offer.id);
-                    newUrgents = true;
-                }
-            }
-        });
-
-        if (newUrgents) this.showToast(`Vous avez ${urgentCount} offre(s) urgente(s) ! ⚠️`);
-    }
 
     isUrgent(dateStr) {
         const deadline = new Date(dateStr);
@@ -180,6 +225,28 @@ class JobTrackerApp {
         today.setHours(0,0,0,0);
         deadline.setHours(0,0,0,0);
         return deadline < today;
+    }
+
+    checkDeadlines() {
+        const today = new Date();
+        let urgentCount = 0;
+        let newUrgents = false;
+
+        this.offers.forEach(offer => {
+            if (offer.statut === 'postulé') return;
+
+            const deadline = new Date(offer.date_limite);
+            const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0 && diffDays <= 2) {
+                urgentCount++;
+                if (!this.notifiedIds.has(offer.id)) {
+                    this.notifiedIds.add(offer.id);
+                    newUrgents = true;
+                }
+            }
+        });
+
+        if (newUrgents) this.showToast(`Vous avez ${urgentCount} offre(s) urgente(s) ! ⚠️`);
     }
 
     render() {
@@ -201,21 +268,25 @@ class JobTrackerApp {
         });
 
         // Filtres
-        if(this.currentFilter==='urgent'){
-            filtered = filtered.filter(o=>this.isUrgent(o.date_limite) && o.statut!=='postulé');
-        } else if(this.currentFilter==='postulated'){
-            filtered = filtered.filter(o=>o.statut==='postulé');
-        } else if(this.currentFilter==='expired'){
-            filtered = filtered.filter(o=>this.isExpired(o.date_limite));
+        switch(this.currentFilter){
+            case 'urgent':
+                filtered = filtered.filter(o=>this.isUrgent(o.date_limite)&&o.statut!=='postulé');
+                break;
+            case 'postulated':
+                filtered = filtered.filter(o=>o.statut==='postulé');
+                break;
+            case 'expired':
+                filtered = filtered.filter(o=>this.isExpired(o.date_limite));
+                break;
         }
 
         this.updateStats();
 
         if(filtered.length===0){
-            this.emptyState.classList.remove('hidden');
+            this.emptyState?.classList.remove('hidden');
             this.listContainer.innerHTML='';
         } else {
-            this.emptyState.classList.add('hidden');
+            this.emptyState?.classList.add('hidden');
             this.listContainer.innerHTML = filtered.map(o=>this.createOfferCard(o)).join('');
             this.attachCardEvents();
         }
@@ -225,11 +296,8 @@ class JobTrackerApp {
         const urgent = this.isUrgent(offer.date_limite) && offer.statut!=='postulé';
         const expired = this.isExpired(offer.date_limite);
         const statusClass = offer.statut==='postulé' ? 'status-applied':'status-pending';
-        const expiredClass = expired ? 'expired-card':'';
-        const urgentClass = urgent ? 'urgent-card':'';
-
         return `
-            <article class="offer-card ${urgentClass} ${expiredClass}" data-id="${offer.id}">
+            <article class="offer-card ${urgent?'urgent-card':''} ${expired?'expired-card':''}" data-id="${offer.id}">
                 <div class="offer-header">
                     <div>
                         <div class="offer-title">${offer.titre} ${urgent?'⚠️':''}</div>
@@ -237,21 +305,13 @@ class JobTrackerApp {
                     </div>
                     <span class="offer-status-badge ${statusClass}">${offer.statut}</span>
                 </div>
-                <p class="offer-company" style="opacity: 0.8">
-                    ${offer.description||'Pas de description.'}
-                </p>
+                <p class="offer-company" style="opacity:0.8">${offer.description||'Pas de description.'}</p>
                 <div class="offer-footer">
                     <span class="offer-deadline">Limite : ${offer.date_limite}</span>
                     <div class="action-btns">
-                        <a href="${offer.lien}" target="_blank" class="btn-icon">
-                            <i class="fas fa-link"></i>
-                        </a>
-                        <button class="btn-icon toggle-status">
-                            <i class="${offer.statut==='postulé'?'fas fa-hourglass-half':'fas fa-check'}"></i>
-                        </button>
-                        <button class="btn-icon delete-btn">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <a href="${offer.lien}" target="_blank" class="btn-icon"><i class="fas fa-link"></i></a>
+                        <button class="btn-icon toggle-status"><i class="${offer.statut==='postulé'?'fas fa-hourglass-half':'fas fa-check'}"></i></button>
+                        <button class="btn-icon delete-btn"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             </article>
@@ -261,23 +321,53 @@ class JobTrackerApp {
     attachCardEvents(){
         this.listContainer.querySelectorAll('.toggle-status').forEach(btn=>{
             btn.addEventListener('click', async (e)=>{
-                const card = e.target.closest('.offer-card');
-                const id = card.dataset.id;
-                const offer = this.offers.find(o=>o.id===id);
-                const nextStatus = offer.statut==='postulé'?'non postulé':'postulé';
-                this.offers = await DataManager.updateOffer(id,{statut:nextStatus});
-                this.render();
+                const button = e.currentTarget;
+
+                button.classList.add('btn-loading');
+                button.disabled = true;
+
+                try {
+                    const card = e.target.closest('.offer-card');
+                    const id = card.dataset.id;
+                    const offer = this.offers.find(o=>o.id===id);
+                    const nextStatus = offer.statut==='postulé'?'non postulé':'postulé';
+
+                    this.offers = await DataManager.updateOffer(id,{statut:nextStatus});
+                    this.render();
+                } catch(err){
+                    console.error(err);
+                } finally {
+                    button.classList.remove('btn-loading');
+                    button.disabled = false;
+                }
             });
         });
 
+
         this.listContainer.querySelectorAll('.delete-btn').forEach(btn=>{
             btn.addEventListener('click', async (e)=>{
-                const id = e.target.closest('.offer-card').dataset.id;
-                if(!confirm('Supprimer cette offre ?')) return;
-                this.offers = await DataManager.deleteOffer(id);
-                this.render();
+                const button = e.currentTarget;
+
+                button.classList.add('btn-loading');
+                button.disabled = true;
+
+                try {
+                    const id = e.target.closest('.offer-card').dataset.id;
+
+                    if(!confirm('Supprimer cette offre ?')) {
+                        button.classList.remove('btn-loading');
+                        button.disabled = false;
+                        return;
+                    }
+
+                    this.offers = await DataManager.deleteOffer(id);
+                    this.render();
+                } catch(err){
+                    console.error(err);
+                }
             });
         });
+
     }
 
     updateStats() {
@@ -287,129 +377,44 @@ class JobTrackerApp {
         const urgent = document.querySelector('#stat-urgent .stat-value');
         const expiredEl = document.querySelector('#stat-expired .stat-value');
 
-        if(total) total.textContent = this.offers.length;
-        if(postulated) postulated.textContent = this.offers.filter(o=>o.statut==='postulé').length;
-        if(pending) pending.textContent = this.offers.filter(o=>o.statut!=='postulé').length;
-        if(urgent) urgent.textContent = this.offers.filter(o=>this.isUrgent(o.date_limite)&&o.statut!=='postulé').length;
-        if(expiredEl) expiredEl.textContent = this.offers.filter(o=>this.isExpired(o.date_limite)).length;
+        total && (total.textContent = this.offers.length);
+        postulated && (postulated.textContent = this.offers.filter(o=>o.statut==='postulé').length);
+        pending && (pending.textContent = this.offers.filter(o=>o.statut!=='postulé').length);
+        urgent && (urgent.textContent = this.offers.filter(o=>this.isUrgent(o.date_limite)&&o.statut!=='postulé').length);
+        expiredEl && (expiredEl.textContent = this.offers.filter(o=>this.isExpired(o.date_limite)).length);
     }
-
 
     showToast(msg){
         const toast = document.getElementById('notification-toast');
+        if (!toast) return;
         toast.textContent = msg;
         toast.classList.remove('hidden');
         setTimeout(()=>toast.classList.add('hidden'),4000);
     }
 }
 
-// 🔐 Auth state
-// window.onAuthStateChanged(window.auth, (user)  => {
-//     if (user) {
-//         console.log("✅ Utilisateur connecté :", user.email);
-//         userEmailSpan.textContent = user.email;
-
-//         // ⬅️ L'app DOIT démarrer ici, point.
-//         new JobTrackerApp();
-
-//     } else {
-//         console.log("⛔ Aucun utilisateur connecté");
-//         document.getElementById('loading-screen').classList.add('hidden');
-//         document.getElementById('auth-screen').classList.remove('hidden');
-//         document.querySelector('.auth-wrapper').classList.remove('hidden');
-//     }
-// });
-
-
-
-// 🍔 Menu Hamburger
-menuBtn?.addEventListener('click', () => {
-  menuPanel.classList.toggle('hidden');
-});
-
-logoutBtn?.addEventListener('click', async () => {
-  await window.auth.signOut();
-  localStorage.removeItem('token');
-  location.reload();
-});
-
-document.addEventListener('click', (e) => {
-  if (menuPanel && menuBtn && !menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
-    menuPanel.classList.add('hidden');
-  }
-});
-
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW enregistré :', reg))
-            .catch(err => console.log('Erreur SW :', err));
-    });
+// 🔹 LANCEMENT APP quand Firebase est prêt
+function initApp(user) {
+    if (user) {
+        console.log("✅ Utilisateur connecté :", user.email);
+        if (userEmailSpan) userEmailSpan.textContent = user.email;
+        new JobTrackerApp();
+    } else {
+        console.log("⛔ Aucun utilisateur connecté");
+        document.getElementById('loading-screen')?.classList.add('hidden');
+        document.getElementById('auth-screen')?.classList.remove('hidden');
+        document.querySelector('.auth-wrapper')?.classList.remove('hidden');
+    }
 }
 
-
-let deferredPrompt;
-const installBtn = document.getElementById('install-btn');
-installBtn.style.display = 'none'; // caché par défaut
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'block'; // afficher le bouton
-});
-
-installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choiceResult = await deferredPrompt.userChoice;
-    if (choiceResult.outcome === 'accepted') {
-        console.log("L'utilisateur a installé la PWA !");
-    } else {
-        console.log("Installation refusée");
-    }
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-});
-
-
-
-
-window.addEventListener("firebase-ready", () => {
-    window.onAuthStateChanged(window.auth, (user) => {
-        if (user) {
-            console.log("✅ Utilisateur connecté :", user.email);
-            userEmailSpan.textContent = user.email;
-            new JobTrackerApp();
-        } else {
-            console.log("⛔ Aucun utilisateur connecté");
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.querySelector('.auth-wrapper').classList.remove('hidden');
-        }
-    });
-});
-
-
+// 🔹 Vérif Firebase ready + auth
 function startAppWhenReady() {
     if (!window.auth || !window.onAuthStateChanged) {
         console.log("⏳ Firebase pas encore prêt...");
-        setTimeout(startAppWhenReady, 100);
-        return;
+        return setTimeout(startAppWhenReady, 100);
     }
-
-    window.onAuthStateChanged(window.auth, (user) => {
-        if (user) {
-            console.log("✅ Utilisateur connecté :", user.email);
-            userEmailSpan.textContent = user.email;
-            new JobTrackerApp();
-        } else {
-            console.log("⛔ Aucun utilisateur connecté");
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.querySelector('.auth-wrapper').classList.remove('hidden');
-        }
-    });
+    window.onAuthStateChanged(window.auth, initApp);
 }
 
 startAppWhenReady();
+window.addEventListener("firebase-ready", () => startAppWhenReady());

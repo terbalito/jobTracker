@@ -116,3 +116,55 @@
     border-left: 4px solid #555;
 }
 
+/* Boutons des cards en attente */
+.offer-card .btn-icon.btn-loading {
+    pointer-events: none;
+    opacity: 0.5;
+    position: relative;
+}
+
+.offer-card .btn-icon.btn-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: 2px solid var(--text-beige);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Shake si action impossible sur la card */
+.offer-card.shake {
+    animation: shake 0.3s;
+}
+
+/* Popup pour supprimer offre */
+.popup-delete {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-card);
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    color: var(--text-beige);
+    z-index: 10000;
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.popup-delete button {
+    margin: 10px 5px 0 5px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+}
+
+.popup-delete .btn-ok { background: var(--accent-yellow); color: black; }
+.popup-delete .btn-cancel { background: #444; color: white; }

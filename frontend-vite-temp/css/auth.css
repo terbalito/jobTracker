@@ -115,3 +115,31 @@
 .shake {
   animation: shake 0.3s;
 }
+
+/* Shake quand erreur login / password */
+#auth-error.shake {
+    animation: shake 0.3s;
+}
+
+/* Boutons login / signup bloqués lors du loading */
+#login-btn.btn-loading,
+#signup-btn.btn-loading {
+    pointer-events: none;
+    opacity: 0.7;
+    position: relative;
+}
+
+#login-btn.btn-loading::after,
+#signup-btn.btn-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}

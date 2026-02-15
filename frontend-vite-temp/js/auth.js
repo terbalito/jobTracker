@@ -1,8 +1,7 @@
 // 🔥 auth.js (Frontend)
-// Utilise uniquement le SDK Firebase Web
 console.log("🔥 auth.js chargé");
 
-// On récupère auth exposé dans window
+// Instance Firebase
 const authInstance = window.auth;
 
 // DOM
@@ -12,9 +11,30 @@ const switchAuth = document.getElementById("switch-auth");
 const authTitle = document.getElementById("auth-title");
 const passwordConfirm = document.getElementById("password-confirm");
 const authError = document.getElementById("auth-error");
+const authScreen = document.getElementById("auth-screen");
 
-// State: login ou signup
+// State
 let mode = "login";
+
+
+// 🔧 Fonction utilitaire loader bouton
+function setButtonLoading(button, isLoading) {
+    if (isLoading) {
+        button.classList.add("btn-loading");
+        button.disabled = true;
+    } else {
+        button.classList.remove("btn-loading");
+        button.disabled = false;
+    }
+}
+
+// 🔧 Animation shake
+function triggerShake() {
+    authScreen.classList.add("shake");
+    setTimeout(() => {
+        authScreen.classList.remove("shake");
+    }, 400);
+}
 
 // SWITCH LOGIN / SIGNUP
 switchAuth.addEventListener("click", () => {
@@ -33,11 +53,17 @@ switchAuth.addEventListener("click", () => {
         authTitle.textContent = "Se connecter";
         switchAuth.textContent = "Pas encore de compte ? S'inscrire";
     }
+
     authError.textContent = "";
 });
 
-// SIGNUP
+
+// ==========================
+// 🚀 SIGNUP
+// ==========================
+
 signupBtn.addEventListener("click", async () => {
+
     const email = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
     const confirm = document.getElementById("password-confirm").value;
@@ -46,21 +72,28 @@ signupBtn.addEventListener("click", async () => {
 
     if (!email || !password || !confirm) {
         authError.textContent = "Remplis tous les champs !";
+        triggerShake();
         return;
     }
 
     if (password !== confirm) {
         authError.textContent = "Les mots de passe ne correspondent pas !";
+        triggerShake();
         return;
     }
+
+    setButtonLoading(signupBtn, true);
 
     try {
         const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
         const token = await userCredential.user.getIdToken();
         localStorage.setItem("token", token);
-        location.reload(); // recharge et affiche le dashboard
+
+        location.reload();
+
     } catch (err) {
         console.error(err);
+
         switch(err.code) {
             case "auth/email-already-in-use":
                 authError.textContent = "Cet email est déjà utilisé !";
@@ -75,11 +108,21 @@ signupBtn.addEventListener("click", async () => {
                 authError.textContent = "Erreur lors de la création du compte.";
                 break;
         }
+
+        triggerShake();
+
+    } finally {
+        setButtonLoading(signupBtn, false);
     }
 });
 
-// LOGIN
+
+// ==========================
+// 🔐 LOGIN
+// ==========================
+
 loginBtn.addEventListener("click", async () => {
+
     const email = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
 
@@ -87,22 +130,28 @@ loginBtn.addEventListener("click", async () => {
 
     if (!email || !password) {
         authError.textContent = "Remplis tous les champs !";
+        triggerShake();
         return;
     }
+
+    setButtonLoading(loginBtn, true);
 
     try {
         const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
         const token = await userCredential.user.getIdToken();
         localStorage.setItem("token", token);
+
         location.reload();
+
     } catch (err) {
         console.error(err);
+
         switch(err.code) {
             case "auth/user-not-found":
                 authError.textContent = "Utilisateur non trouvé !";
                 break;
             case "auth/wrong-password":
-            case "auth/invalid-credential": // <-- ajouter ça
+            case "auth/invalid-credential":
                 authError.textContent = "Mot de passe incorrect !";
                 break;
             case "auth/invalid-email":
@@ -113,5 +162,9 @@ loginBtn.addEventListener("click", async () => {
                 break;
         }
 
+        triggerShake();
+
+    } finally {
+        setButtonLoading(loginBtn, false);
     }
 });

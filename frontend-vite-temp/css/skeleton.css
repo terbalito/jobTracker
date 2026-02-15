@@ -57,8 +57,9 @@
     gap: 20px;
 }
 
+
 .skeleton-card {
-    height: 160px;
+    height: 180px; 
     border-radius: 12px;
     background: linear-gradient(
         90deg,
@@ -70,3 +71,4 @@
     animation: shimmer 1.4s infinite ease;
     box-shadow: 0 6px 15px rgba(0,0,0,0.5);
 }
+
