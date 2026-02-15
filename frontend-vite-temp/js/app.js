@@ -1,12 +1,19 @@
 import { DataManager } from './data.js';
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { requestNotificationPermission, listenForegroundMessages } from './notification.js';
 
 // 🔒 AU DÉMARRAGE : ON CACHE TOUT
 document.getElementById('auth-screen')?.classList.add('hidden');
 document.querySelector('.auth-wrapper')?.classList.add('hidden');
 document.querySelector('.app-container')?.classList.add('hidden');
 
-// ⏳ Le loading-screen DOIT être visible par défaut
+// Bouton notifications
+const notifBtn = document.createElement('button');
+notifBtn.textContent = "Activer notifications";
+notifBtn.addEventListener('click', () => requestNotificationPermission());
+document.querySelector('.menu-panel').appendChild(notifBtn);
+
+// Écouter les messages reçus au premier plan
+listenForegroundMessages();
 
 // ⚡ DOM nécessaires pour le menu et l'email
 const menuBtn = document.getElementById('menu-btn');
@@ -48,12 +55,25 @@ class JobTrackerApp {
     }
 
     async loadOffers() {
+        console.log("⏳ Chargement des offres...");
+
         try {
-            this.offers = await DataManager.loadOffers();
-            console.log("OFFRES CHARGEES :", this.offers);
+            // Récupération des données depuis l'API
+            const offres = await DataManager.loadOffers();
+
+            // Sécurité : on vérifie que c'est bien un tableau
+            this.offers = Array.isArray(offres) ? offres : [];
+
+            console.log("✅ OFFRES CHARGÉES :", this.offers);
+
+            // Flag utile pour le skeleton / rendu
+            this.isOffersLoaded = true;
+
         } catch (err) {
-            console.error("Erreur lors du chargement des offres :", err);
+            console.error("❌ Erreur lors du chargement des offres :", err);
+
             this.offers = [];
+            this.isOffersLoaded = true; // même en erreur → on arrête le skeleton
         }
     }
 
@@ -284,21 +304,21 @@ class JobTrackerApp {
 }
 
 // 🔐 Auth state
-onAuthStateChanged(window.auth, (user) => {
-    if (user) {
-        console.log("✅ Utilisateur connecté :", user.email);
-        userEmailSpan.textContent = user.email;
+// window.onAuthStateChanged(window.auth, (user)  => {
+//     if (user) {
+//         console.log("✅ Utilisateur connecté :", user.email);
+//         userEmailSpan.textContent = user.email;
 
-        // ⬅️ L'app DOIT démarrer ici, point.
-        new JobTrackerApp();
+//         // ⬅️ L'app DOIT démarrer ici, point.
+//         new JobTrackerApp();
 
-    } else {
-        console.log("⛔ Aucun utilisateur connecté");
-        document.getElementById('loading-screen').classList.add('hidden');
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.querySelector('.auth-wrapper').classList.remove('hidden');
-    }
-});
+//     } else {
+//         console.log("⛔ Aucun utilisateur connecté");
+//         document.getElementById('loading-screen').classList.add('hidden');
+//         document.getElementById('auth-screen').classList.remove('hidden');
+//         document.querySelector('.auth-wrapper').classList.remove('hidden');
+//     }
+// });
 
 
 
@@ -318,3 +338,78 @@ document.addEventListener('click', (e) => {
     menuPanel.classList.add('hidden');
   }
 });
+
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW enregistré :', reg))
+            .catch(err => console.log('Erreur SW :', err));
+    });
+}
+
+
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+installBtn.style.display = 'none'; // caché par défaut
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block'; // afficher le bouton
+});
+
+installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const choiceResult = await deferredPrompt.userChoice;
+    if (choiceResult.outcome === 'accepted') {
+        console.log("L'utilisateur a installé la PWA !");
+    } else {
+        console.log("Installation refusée");
+    }
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+});
+
+
+
+
+window.addEventListener("firebase-ready", () => {
+    window.onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+            console.log("✅ Utilisateur connecté :", user.email);
+            userEmailSpan.textContent = user.email;
+            new JobTrackerApp();
+        } else {
+            console.log("⛔ Aucun utilisateur connecté");
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.querySelector('.auth-wrapper').classList.remove('hidden');
+        }
+    });
+});
+
+
+function startAppWhenReady() {
+    if (!window.auth || !window.onAuthStateChanged) {
+        console.log("⏳ Firebase pas encore prêt...");
+        setTimeout(startAppWhenReady, 100);
+        return;
+    }
+
+    window.onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+            console.log("✅ Utilisateur connecté :", user.email);
+            userEmailSpan.textContent = user.email;
+            new JobTrackerApp();
+        } else {
+            console.log("⛔ Aucun utilisateur connecté");
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.querySelector('.auth-wrapper').classList.remove('hidden');
+        }
+    });
+}
+
+startAppWhenReady();
