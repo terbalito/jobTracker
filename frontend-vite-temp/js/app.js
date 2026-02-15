@@ -107,12 +107,6 @@ class JobTrackerApp {
         }
     }
 
-    // hideSkeleton() {
-    //     this.loadingScreen?.classList.add('hidden');
-    //     document.querySelector('.app-container')?.classList.remove('hidden');
-    // }
-    
-    
     hideSkeleton() {
         this.loadingScreen?.classList.add('hidden');
         document.querySelector('.app-container')?.classList.remove('hidden');
@@ -127,7 +121,6 @@ class JobTrackerApp {
 
         this.listContainer.innerHTML = skeletonCards;
     }
-
 
     bindEvents() {
         if (!this.form || !this.toggleBtn || !this.cancelBtn) return console.warn("⛔ Éléments UI non prêts");
@@ -150,7 +143,6 @@ class JobTrackerApp {
         // Filters
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-
                 document.querySelector('.filter-btn.active')?.classList.remove('active');
                 e.currentTarget.classList.add('active');
                 this.currentFilter = e.currentTarget.dataset.filter;
@@ -160,24 +152,16 @@ class JobTrackerApp {
 
                 try {
                     await this.loadOffers();
-
-                    // petit délai pour effet smooth (optionnel)
-                    setTimeout(() => {
-                        this.render();
-                    }, 10);
-
+                    setTimeout(() => this.render(), 10);
                 } catch (err) {
                     console.error(err);
                 }
-
             });
         });
-
     }
 
     async handleSubmit(e) {
         e.preventDefault();
-
         const submitBtn = this.form.querySelector('.btn-submit');
 
         // 🔒 Bloquer le bouton
@@ -200,6 +184,7 @@ class JobTrackerApp {
             this.toggleBtn.classList.remove('hidden');
 
             this.render();
+            this.playSuccessSound();
         } catch (err) {
             console.error("Erreur lors de l'ajout :", err);
         } finally {
@@ -208,7 +193,6 @@ class JobTrackerApp {
             submitBtn.disabled = false;
         }
     }
-
 
     isUrgent(dateStr) {
         const deadline = new Date(dateStr);
@@ -234,7 +218,6 @@ class JobTrackerApp {
 
         this.offers.forEach(offer => {
             if (offer.statut === 'postulé') return;
-
             const deadline = new Date(offer.date_limite);
             const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
             if (diffDays >= 0 && diffDays <= 2) {
@@ -246,13 +229,26 @@ class JobTrackerApp {
             }
         });
 
-        if (newUrgents) this.showToast(`Vous avez ${urgentCount} offre(s) urgente(s) ! ⚠️`);
+        if (newUrgents) {
+            this.showToast(`Vous avez ${urgentCount} offre(s) urgente(s) ! ⚠️`);
+            this.playAlertSound();
+        }
+    }
+
+    playSuccessSound() {
+        const audio = document.getElementById("snd-success");
+        if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
+    }
+
+    playAlertSound() {
+        const audio = document.getElementById("snd-alert");
+        if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
     }
 
     render() {
         let filtered = [...this.offers];
 
-        // Tri urgent > expiré > autres
+        // 🔥 Tri urgent > expiré > plus récent au moins récent
         filtered.sort((a,b)=>{
             const urgentA = this.isUrgent(a.date_limite) && a.statut!=='postulé';
             const urgentB = this.isUrgent(b.date_limite) && b.statut!=='postulé';
@@ -264,7 +260,7 @@ class JobTrackerApp {
             if(!expiredA && expiredB) return -1;
             if(expiredA && !expiredB) return 1;
 
-            return new Date(b.date_ajout || 0) - new Date(a.date_ajout || 0);
+            return new Date(a.date_limite) - new Date(b.date_limite); // du plus urgent au moins urgent
         });
 
         // Filtres
@@ -290,6 +286,8 @@ class JobTrackerApp {
             this.listContainer.innerHTML = filtered.map(o=>this.createOfferCard(o)).join('');
             this.attachCardEvents();
         }
+
+        this.checkDeadlines(); // 🔥 Toujours vérifier urgences après render
     }
 
     createOfferCard(offer){
@@ -309,7 +307,7 @@ class JobTrackerApp {
                 <div class="offer-footer">
                     <span class="offer-deadline">Limite : ${offer.date_limite}</span>
                     <div class="action-btns">
-                        <a href="${offer.lien}" target="_blank" class="btn-icon"><i class="fas fa-link"></i></a>
+                        <a href="${offer.lien}" target="_blank" class="btn-icon link-btn"><i class="fas fa-link"></i></a>
                         <button class="btn-icon toggle-status"><i class="${offer.statut==='postulé'?'fas fa-hourglass-half':'fas fa-check'}"></i></button>
                         <button class="btn-icon delete-btn"><i class="fas fa-trash"></i></button>
                     </div>
@@ -322,52 +320,42 @@ class JobTrackerApp {
         this.listContainer.querySelectorAll('.toggle-status').forEach(btn=>{
             btn.addEventListener('click', async (e)=>{
                 const button = e.currentTarget;
-
                 button.classList.add('btn-loading');
                 button.disabled = true;
-
                 try {
                     const card = e.target.closest('.offer-card');
                     const id = card.dataset.id;
                     const offer = this.offers.find(o=>o.id===id);
                     const nextStatus = offer.statut==='postulé'?'non postulé':'postulé';
-
                     this.offers = await DataManager.updateOffer(id,{statut:nextStatus});
                     this.render();
-                } catch(err){
-                    console.error(err);
-                } finally {
+                } catch(err){ console.error(err); }
+                finally {
                     button.classList.remove('btn-loading');
                     button.disabled = false;
                 }
             });
         });
 
-
         this.listContainer.querySelectorAll('.delete-btn').forEach(btn=>{
             btn.addEventListener('click', async (e)=>{
                 const button = e.currentTarget;
-
                 button.classList.add('btn-loading');
                 button.disabled = true;
-
                 try {
                     const id = e.target.closest('.offer-card').dataset.id;
-
                     if(!confirm('Supprimer cette offre ?')) {
                         button.classList.remove('btn-loading');
                         button.disabled = false;
                         return;
                     }
-
                     this.offers = await DataManager.deleteOffer(id);
                     this.render();
-                } catch(err){
-                    console.error(err);
-                }
+                } catch(err){ console.error(err); }
             });
         });
 
+        
     }
 
     updateStats() {
