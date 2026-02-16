@@ -9,7 +9,14 @@ document.querySelector('.app-container')?.classList.add('hidden');
 // Bouton notifications
 const notifBtn = document.createElement('button');
 notifBtn.textContent = "Activer notifications";
-notifBtn.addEventListener('click', () => requestNotificationPermission());
+notifBtn.addEventListener('click', async () => {
+    await requestNotificationPermission();
+
+    // 🔹 AJOUT : lecture test pour débloquer l'audio
+    const alertAudio = document.getElementById("snd-alert");
+    alertAudio && alertAudio.play().catch(() => {});
+});
+
 document.querySelector('.menu-panel')?.appendChild(notifBtn);
 
 // Écouter les messages reçus au premier plan
@@ -85,13 +92,22 @@ class JobTrackerApp {
     async start() {
         try {
             await this.loadOffers();
+
+            // 🔹 AJOUT : vérifier urgences immédiatement
+            this.checkDeadlines(); 
+
             this.bindEvents();
             this.render();
             this.hideSkeleton();
         } catch (err) {
             console.error("Erreur init app :", err);
         }
+        // 🔹 Vérifier toutes les 30 secondes
+        setInterval(() => {
+            this.checkDeadlines();
+        }, 30000);
     }
+
 
     async loadOffers() {
         console.log("⏳ Chargement des offres...");

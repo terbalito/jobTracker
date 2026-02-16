@@ -14,3 +14,15 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+    console.log('[FCM SW] Message en arrière-plan :', payload);
+
+    self.registration.showNotification(payload.notification.title, {
+        body: payload.notification.body,
+        icon: '/android/android-launchericon-192-192.png',
+        badge: '/android/android-launchericon-48-48.png',
+        vibrate: [200, 100, 200],
+        tag: 'urgent-job'
+    });
+});

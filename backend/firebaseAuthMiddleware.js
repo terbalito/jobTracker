@@ -1,4 +1,3 @@
-// firebaseAuthMiddleware.js
 import { authAdmin } from "./firebaseAdmin.js";
 
 export async function firebaseAuth(req, res, next) {
